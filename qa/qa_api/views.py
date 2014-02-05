@@ -16,9 +16,11 @@ from rest_framework import viewsets
 #Serializers
 from qa_api.serializers import UserSerializer, QuestionSerializer, AnswearSerializer, CourseSerializer
 #Decorators
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view, permission_classes
 #Responses
 from rest_framework.response import Response
+#Permissions
+from rest_framework.permissions import AllowAny
 #Fenix SDK
 import fenix
 
@@ -45,6 +47,7 @@ class QuestionViewSet(viewsets.ModelViewSet):
 # Specific methods
 # Get the authentication url
 @api_view(['GET'])
+@permission_classes((AllowAny, ))
 def authentication_url(request):
 	api = fenix.FenixAPISingleton()
 	authentication_url = api.get_authentication_url()
@@ -52,6 +55,7 @@ def authentication_url(request):
 
 # Set code: After getting the code now it's time to request an access token
 @api_view(['POST'])
+@permission_classes((AllowAny, ))
 def set_code(request):
 	code = request.GET.get('code')
 	fenix_user = fenix.User()
