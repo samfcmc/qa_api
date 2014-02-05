@@ -38,6 +38,7 @@ INSTALLED_APPS = (
     'django.contrib.staticfiles',
 	'qa_api',
 	'rest_framework',
+	'django_extensions',
 )
 
 MIDDLEWARE_CLASSES = (
@@ -84,4 +85,12 @@ USE_TZ = True
 STATIC_URL = '/static/'
 
 # REST API Settings
-REST_FRAMEWORK = { 'PAGINATE_BY': 10 }
+REST_FRAMEWORK = { 'PAGINATE_BY': 10 ,
+	'DEFAULT_AUTHENTICATION_CLASSES': (
+		'rest_framework.authentication.BasicAuthentication',
+		'qa_api.authentication.CustomAuthentication',
+		),
+	'DEFAULT_PERMISSION_CLASSES': (
+		'rest_framework.permissions.IsAuthenticated',
+		)
+	}

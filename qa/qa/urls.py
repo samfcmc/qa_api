@@ -19,4 +19,6 @@ urlpatterns = patterns('',
     url(r'^admin/', include(admin.site.urls)),
 	url(r'^', include(router.urls)),
 	url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework')),
+
+	url(r'^authentication_url', 'qa_api.views.authentication_url', name='authentication_url'),
 )
