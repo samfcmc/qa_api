@@ -15,12 +15,11 @@ from qa_api.models import Question, FenixEduAPIUser
 from rest_framework import viewsets
 #Serializers
 from qa_api.serializers import UserSerializer, QuestionSerializer, AnswearSerializer, CourseSerializer
-#Decorators
+#REST framework
 from rest_framework.decorators import api_view, permission_classes
-#Responses
 from rest_framework.response import Response
-#Permissions
 from rest_framework.permissions import AllowAny
+from rest_framework.exceptions import APIException
 #Fenix SDK
 import fenix
 
@@ -42,7 +41,29 @@ class QuestionViewSet(viewsets.ModelViewSet):
 		return queryset
 
 	def pre_save(self, obj):
+		# Current user
+		# Validate course
 		obj.user = self.request.user
+		course = self.request.POST['course']
+		api = fenix.FenixAPISingleton()
+		fenix_user = FenixEduAPIUser.objects.get(user=obj.user)
+		print(fenix_user.access_token)
+		courses = api.get_person_courses(user=fenix_user.get_fenix_api_user())
+		enrolments = courses['enrolments']
+		teaching = courses['teaching']
+
+		for enrol in enrolments:
+			if course == enrol['id']:
+				obj.course = course
+				return True
+
+		for teach in teaching:
+			if course == teach['id']:
+				obj.course = course
+				return True
+		print('ERROR!')
+		raise APIException('Invalid course')
+
 
 # Specific methods
 # Get the authentication url
