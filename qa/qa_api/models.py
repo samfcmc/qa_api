@@ -25,7 +25,7 @@ class Answear(models.Model):
 class Question(models.Model):
 	user = models.ForeignKey(User)
 	answears = models.ManyToManyField(Answear)
-	course = models.ForeignKey(Course)
+	course = models.CharField(max_length=200)
 	text = models.CharField(max_length=10000)
 
 class TopAnswear(models.Model):
