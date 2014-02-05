@@ -22,4 +22,5 @@ urlpatterns = patterns('',
 
 	url(r'^authentication_url', 'qa_api.views.authentication_url', name='authentication_url'),
 	url(r'^set_code', 'qa_api.views.set_code', name='set_code'),
+	url(r'^person/courses', 'qa_api.views.get_person_courses', name='person_courses'),
 )

@@ -115,3 +115,12 @@ def set_code(request):
 		fenix_api_user.save()
 	
 	return Response({'access_token' : fenix_api_user.access_token})
+
+@api_view(['GET'])
+def get_person_courses(request):
+	api = fenix.FenixAPISingleton()
+	fenix_user = FenixEduAPIUser.objects.get(user=request.user)
+	fenix_api_user = fenix_user.get_fenix_api_user()
+	courses = api.get_person_courses(user=fenix_api_user)
+
+	return Response(courses)
