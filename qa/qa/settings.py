@@ -87,7 +87,7 @@ STATIC_URL = '/static/'
 # REST API Settings
 REST_FRAMEWORK = { 'PAGINATE_BY': 10 ,
 	'DEFAULT_AUTHENTICATION_CLASSES': (
-		'rest_framework.authentication.BasicAuthentication',
+		#	'rest_framework.authentication.BasicAuthentication',
 		'qa_api.authentication.CustomAuthentication',
 		),
 	'DEFAULT_PERMISSION_CLASSES': (

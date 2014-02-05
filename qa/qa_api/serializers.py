@@ -14,6 +14,7 @@ class CourseSerializer(serializers.HyperlinkedModelSerializer):
 		fields = ('name')
 
 class QuestionSerializer(serializers.HyperlinkedModelSerializer):
+	user = serializers.Field(source='user.username')
 	class Meta:
 		model = Question
 		fields = ('user', 'text', 'course', 'answears')
