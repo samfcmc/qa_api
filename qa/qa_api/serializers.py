@@ -12,14 +12,17 @@ class CourseSerializer(serializers.HyperlinkedModelSerializer):
 	class Meta:
 		model = Course
 		fields = ('name')
-
-class QuestionSerializer(serializers.HyperlinkedModelSerializer):
-	user = serializers.Field(source='user.username')
-	class Meta:
-		model = Question
-		fields = ('user', 'text', 'course', 'answears')
-
 class AnswearSerializer(serializers.HyperlinkedModelSerializer):
+	user = serializers.Field(source='user.username')
 	class Meta:
 		model = Answear
 		fields = ('user', 'text')
+
+class QuestionSerializer(serializers.HyperlinkedModelSerializer):
+	user = serializers.Field(source='user.username')
+	answears = AnswearSerializer(many=True)
+	class Meta:
+		model = Question
+		fields = ('id', 'user', 'text', 'course', 'answears')
+
+

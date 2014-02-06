@@ -10,13 +10,13 @@ Imports
 
 #Models
 from django.contrib.auth.models import User
-from qa_api.models import Question, FenixEduAPIUser
+from qa_api.models import Question, FenixEduAPIUser, Answear
 #View sets
 from rest_framework import viewsets
 #Serializers
 from qa_api.serializers import UserSerializer, QuestionSerializer, AnswearSerializer, CourseSerializer
 #REST framework
-from rest_framework.decorators import api_view, permission_classes
+from rest_framework.decorators import api_view, permission_classes, link
 from rest_framework.response import Response
 from rest_framework.permissions import AllowAny
 from rest_framework.exceptions import APIException
@@ -47,7 +47,6 @@ class QuestionViewSet(viewsets.ModelViewSet):
 		course = self.request.POST['course']
 		api = fenix.FenixAPISingleton()
 		fenix_user = FenixEduAPIUser.objects.get(user=obj.user)
-		print(fenix_user.access_token)
 		courses = api.get_person_courses(user=fenix_user.get_fenix_api_user())
 		enrolments = courses['enrolments']
 		teaching = courses['teaching']
@@ -61,9 +60,23 @@ class QuestionViewSet(viewsets.ModelViewSet):
 			if course == teach['id']:
 				obj.course = course
 				return True
-		print('ERROR!')
 		raise APIException('Invalid course')
 
+	@link()
+	def answears(self, request, *args, **kwargs):
+		question = self.get_object()
+		answears = question.answears.all()
+		serializer = AnswearSerializer(answears, many=True)
+		return Response(serializer.data)
+
+# Answears
+class AnswearViewSet(viewsets.ModelViewSet):
+	queryset = Answear.objects.all()
+	serializer_class = AnswearSerializer
+
+	def pre_save(self, obj):
+		obj.user = self.request.user
+		
 
 # Specific methods
 # Get the authentication url
@@ -114,7 +127,20 @@ def set_code(request):
 		user.save()
 		fenix_api_user.save()
 	
-	return Response({'access_token' : fenix_api_user.access_token})
+	return Response({'access_token' : fenix_api_user.access_token,
+		'refresh_token' : fenix_api_user.refresh_token})
+
+# get token: Get an access token using a refresh token
+"""@api_view(['GET'])
+@persmission_classes((AllowAny, ))
+def get_token(request):
+	refresh_token = request.GET['refresh_token']
+
+	try:
+		fenix_api_user = FenixEduAPIUser.objects.get(refresh_token=refresh_token)
+		api = FenixAPISingleton()
+	except:
+"""
 
 @api_view(['GET'])
 def get_person_courses(request):
