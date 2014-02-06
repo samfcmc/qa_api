@@ -16,10 +16,11 @@ from rest_framework import viewsets
 #Serializers
 from qa_api.serializers import UserSerializer, QuestionSerializer, AnswearSerializer, CourseSerializer
 #REST framework
-from rest_framework.decorators import api_view, permission_classes, link
+from rest_framework.decorators import api_view, permission_classes, link, action
 from rest_framework.response import Response
 from rest_framework.permissions import AllowAny
 from rest_framework.exceptions import APIException
+from rest_framework import status
 #Fenix SDK
 import fenix
 
@@ -62,12 +63,26 @@ class QuestionViewSet(viewsets.ModelViewSet):
 				return True
 		raise APIException('Invalid course')
 
-	@link()
-	def answears(self, request, *args, **kwargs):
+	@action(methods=['GET', 'POST'])
+	def answears(self, request, pk=None):
+		if request.method == 'GET':
+			return self.get_answears(request, pk)
+		elif request.method == 'POST':
+			return self.post_answear(request, pk)
+
+	def get_answears(self, request, pk=None):
 		question = self.get_object()
 		answears = question.answears.all()
 		serializer = AnswearSerializer(answears, many=True)
 		return Response(serializer.data)
+
+	def post_answear(self, request, pk=None):
+		question = self.get_object()
+		serializer = AnswearSerializer(data=request.DATA)
+		if serializer.is_valid():
+			return Response(serializer.data)
+		else:
+			return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 # Answears
 class AnswearViewSet(viewsets.ModelViewSet):
