@@ -11,7 +11,8 @@ class UserSerializer(serializers.HyperlinkedModelSerializer):
 class CourseSerializer(serializers.HyperlinkedModelSerializer):
 	class Meta:
 		model = Course
-		fields = ('name')
+		fields = ('id', 'fenix_id', 'name')
+
 class AnswearSerializer(serializers.HyperlinkedModelSerializer):
 	user = serializers.Field(source='user.username')
 	class Meta:

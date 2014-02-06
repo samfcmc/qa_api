@@ -10,7 +10,7 @@ Imports
 
 #Models
 from django.contrib.auth.models import User
-from qa_api.models import Question, FenixEduAPIUser, Answear
+from qa_api.models import Question, FenixEduAPIUser, Answear, Course
 #View sets
 from rest_framework import viewsets
 #Serializers
@@ -84,14 +84,10 @@ class QuestionViewSet(viewsets.ModelViewSet):
 		else:
 			return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-# Answears
-class AnswearViewSet(viewsets.ModelViewSet):
-	queryset = Answear.objects.all()
-	serializer_class = AnswearSerializer
-
-	def pre_save(self, obj):
-		obj.user = self.request.user
-		
+# Courses
+class UserViewSet(viewsets.ModelViewSet):
+	queryset = Course.objects.all()
+	serializer_class = CourseSerializer
 
 # Specific methods
 # Get the authentication url
@@ -146,8 +142,7 @@ def set_code(request):
 		'refresh_token' : fenix_api_user.refresh_token})
 
 # get token: Get an access token using a refresh token
-"""@api_view(['GET'])
-@persmission_classes((AllowAny, ))
+"""@persmission_classes((AllowAny, ))
 def get_token(request):
 	refresh_token = request.GET['refresh_token']
 
@@ -164,4 +159,20 @@ def get_person_courses(request):
 	fenix_api_user = fenix_user.get_fenix_api_user()
 	courses = api.get_person_courses(user=fenix_api_user)
 
-	return Response(courses)
+	# Add the courses to DB if they don't exists already
+	enrolments = courses['enrolments']
+	teaching = courses['teaching']
+
+	for enrol in enrolments:
+		course, created = Course.objects.get_or_create(fenix_id=enrol['id'], name=enrol['name'])
+		if created:
+			course.save()
+
+	for teach in teaching:
+		course, created = Course.objects.get_or_create(fenix_id=teach['id'], name=teach['name'])
+		if created:
+			course.save()
+
+	db_courses = Course.objects.all()
+	serializer = CourseSerializer(db_courses, many=True)
+	return Response(serializer.data)
