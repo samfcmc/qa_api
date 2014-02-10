@@ -158,6 +158,7 @@ def get_person_courses(request):
 	fenix_user = FenixEduAPIUser.objects.get(user=request.user)
 	fenix_api_user = fenix_user.get_fenix_api_user()
 	courses = api.get_person_courses(user=fenix_api_user)
+	person_courses = []
 
 	# Add the courses to DB if they don't exists already
 	enrolments = courses['enrolments']
@@ -167,12 +168,14 @@ def get_person_courses(request):
 		course, created = Course.objects.get_or_create(fenix_id=enrol['id'], name=enrol['name'])
 		if created:
 			course.save()
+		person_courses.append(course)
 
 	for teach in teaching:
 		course, created = Course.objects.get_or_create(fenix_id=teach['id'], name=teach['name'])
 		if created:
 			course.save()
+		person_courses.append(course)
 
-	db_courses = Course.objects.all()
+	db_courses = person_courses
 	serializer = CourseSerializer(db_courses, many=True)
 	return Response(serializer.data)
